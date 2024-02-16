@@ -12,6 +12,7 @@ std::vector<std::string> ReadSeedIPAddressesFromFile(const std::string& filename
     std::ifstream inputFile(filename);
     if (!inputFile.is_open()) {
         std::cerr << "Error opening file" << filename << std::endl;
+        //If file does not exist, return a default trusted seed nodes.
         ipAddresses.push_back("20.199.50.27");
         ipAddresses.push_back("4.233.61.8");
         return ipAddresses;
@@ -55,7 +56,7 @@ std::vector<std::string> GetSeedIPAddresses() {
 
     // Make DNS query
     if ((status = getaddrinfo(domain.c_str(), NULL, &hints, &res)) != 0) {
-        std::cerr << "Error getting infomration: " << gai_strerror(status) << std::endl;
+        std::cerr << "Error getting information: " << gai_strerror(status) << std::endl;
         return ipAddresses;
     }
 
@@ -84,8 +85,7 @@ std::vector<std::string> GetSeedIPAddresses() {
         ipAddresses.push_back(ipString);
     }
 
-    freeaddrinfo(res); // Liberar la memoria de la estructura
-
+    freeaddrinfo(res); // Free memory 
     //std::cout << "Seed Vector has #elements : " << ipAddresses.size() << std::endl;
     if (ipAddresses.size() == 0)
     {
@@ -95,4 +95,6 @@ std::vector<std::string> GetSeedIPAddresses() {
  
     return ipAddresses;
 }
+
+
 
