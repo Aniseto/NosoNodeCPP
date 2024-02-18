@@ -26,5 +26,11 @@
     <ClInclude Include="SeedFunctions.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataStructures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Communications.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

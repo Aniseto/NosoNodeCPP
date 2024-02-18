@@ -25,15 +25,40 @@ int main() {
     SaveToTextFile(SeedIpAddresses, "SeedIPAddresses.txt");
     std::cout << "Total Seed Nodes : " << SeedIpAddresses.size() << std::endl;
 
+    //Create a vector of Nodes with structure Node to save data , IP, Port, NodeStatus, MerkleTree. .. etc
+
+    std::vector<Node> SeedNodes;
+    for (int i = 0; i < SeedIpAddresses.size(); i++) {
+		//NodeStatusData NodeStatus;
+
+		Node SeedNode(SeedIpAddresses[i], DefaultSeedPort);
+        std::cout << "Calling SetNodeStatus" << std::endl;
+        SeedNode.SetNodeStatus();
+        std::cout  << "Calling CalculateMerkle" << std::endl;
+        SeedNode.CalculateMerkle();
+        //SeedNode.GetNodeStatus();
+        std::cout << "Calling Push";
+		SeedNodes.push_back(SeedNode);
+
+	}
+
+ 
+
+    //Print Seed Nodes in table format
+    std::cout << std::left << std::setw(15) << "Node IP" << std::setw(10) << "Node Port" << std::setw(15) << "Node Merkle" << std::endl;
+    for (int i = 0; i < SeedNodes.size(); i++) {
+        SeedNodes[i].PrintNodeTable();
+    }
+    
+
+
+
 
 
     //STEP2 Get Nodestatus from all Seed nodes, and verify all fields are equal on all seed nodes.
     // GetSeedNodeConsensus. only if more more than 75% nodes are equal you can go on. Mínimum 3 seed nodes ??
 
-   /*//NODESTATUS 1{Peers} 2{LastBlock} 3{Pendings} 4{Delta} 5{headers} 6{version} 7{UTCTime} 8{MNsHash}
-//           9{MNscount} 10{LasBlockHash} 11{BestHashDiff} 12{LastBlockTimeEnd} 13{LBMiner}
-//           14{ChecksCount} 15{LastBlockPoW} 16{LastBlockDiff} 17{summary} 18{GVTs} 19{nosoCFG}
-//           20{PSOHash}*/
+ 
 
 //STEP 2: Select a random seed server from the SeedIPAddress Vector and get all Nodes IP
     try {

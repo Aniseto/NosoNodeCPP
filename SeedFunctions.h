@@ -4,6 +4,17 @@
 #include <vector>
 #include <string>
 #include <cstdlib>
+#include <boost/uuid/detail/md5.hpp>
+#include <botan/hash.h>
+#include <botan/hex.h>
+#include <botan/auto_rng.h>
+#include <process.h>
+#include <botan/md5.h>
+//#include <botan/hex.h>
+//#include <string>
+#include <algorithm> // Para std::transform
+#include <cctype>    // Para std::toupper
+
 //#include <arpa/inet.h>
 //#include <netdb.h>
 
@@ -96,5 +107,16 @@ std::vector<std::string> GetSeedIPAddresses() {
     return ipAddresses;
 }
 
+
+std::string calculateMD5(const std::string& input) {
+    
+   
+    Botan::MD5 hash_md5;
+    Botan::secure_vector<uint8_t> hashResult = hash_md5.process(reinterpret_cast<const uint8_t*>(input.data()), input.size());
+    std::string hashHex = Botan::hex_encode(hashResult);
+    std::transform(hashHex.begin(), hashHex.end(), hashHex.begin(), ::toupper);
+    return hashHex;
+    
+}
 
 
