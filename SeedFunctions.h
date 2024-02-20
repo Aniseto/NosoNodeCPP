@@ -14,6 +14,14 @@
 //#include <string>
 #include <algorithm> // Para std::transform
 #include <cctype>    // Para std::toupper
+//#include <iostream>
+#include <chrono>
+#include <thread>
+#include <iomanip>
+#include <ctime>
+#include <future>
+//#include <NtpClient.h>
+//#include <ntpclient/NtpClient.h>
 
 //#include <arpa/inet.h>
 //#include <netdb.h>
@@ -118,5 +126,4 @@ std::string calculateMD5(const std::string& input) {
     return hashHex;
     
 }
-
 

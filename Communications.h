@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
 #include <boost/asio.hpp> //Boost Library //vcpkg install boost:x64-windows-static https://www.boost.org/
+#include <boost/array.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
+//#include <>
 
 #ifndef _WIN32
 #include<sys/socket.h>
@@ -93,4 +96,32 @@ std::string SendStringToNode(const std::string& ip, int port, const std::string&
     WSACleanup();
     return respuesta;
 
+}
+std::string GetUTCTimeFromNTPServer(const std::string& ntpServer = "pool.ntp.org") 
+{
+    boost::asio::io_context io_context;
+    boost::asio::ip::udp::resolver resolver(io_context);
+    boost::asio::ip::udp::endpoint receiver_endpoint = *resolver.resolve(boost::asio::ip::udp::v4(), ntpServer, "ntp").begin();
+    boost::asio::ip::udp::socket socket(io_context);
+    socket.open(boost::asio::ip::udp::v4());
+
+    // Formar la solicitud NTP
+    std::array<uint8_t, 48> send_buf{ 0 };
+    send_buf[0] = 0x1B;
+
+    // Enviar la solicitud NTP
+    socket.send_to(boost::asio::buffer(send_buf), receiver_endpoint);
+
+    // Recibir la respuesta NTP
+    std::array<uint8_t, 2048> recv_buf;
+    boost::asio::ip::udp::endpoint sender_endpoint;
+    size_t len = socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint);
+
+    // Analizar la respuesta NTP
+    uint64_t timestamp = (recv_buf[40] << 24) | (recv_buf[41] << 16) | (recv_buf[42] << 8) | recv_buf[43];
+    uint64_t epoch = timestamp - 2208988800UL; // Diferencia entre 1900-1970
+    std::time_t current_time = static_cast<std::time_t>(epoch);
+
+    // Convertir la hora UTC en una cadena usando std::to_string
+    return std::to_string(current_time);
 }

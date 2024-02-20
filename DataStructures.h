@@ -1,6 +1,8 @@
 #pragma once
 #include <iomanip>
 #include "Communications.h"
+#include <curl/curl.h> //.\vpkg install curl
+
 
 class NodeStatusData {
 
@@ -88,6 +90,29 @@ public:
 
 
 };
+
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* data) {
+    data->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+std::string GetNodePublicIP() {
+    CURL* curl;
+    CURLcode res;
+    std::string readBuffer;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "https://api.ipify.org");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+    }
+
+    return readBuffer;
+};
+
 class Node {
 private:
 
@@ -95,6 +120,8 @@ private:
 	int NodePort=8080;
 	NodeStatusData NodeStatus;
     std::string MerkleTree;
+    std::string ProgramVersion = "0.4.2";
+    std::string Subversion = "Cb1";
 
 public:
 	Node(std::string NodeIP, int NodePort) : NodeIP(NodeIP), NodePort(NodePort) {}
@@ -128,11 +155,11 @@ public:
         
         //SetNodeStatus();
         std::string Consensus = std::to_string(NodeStatus.GetBlockNumber()) + NodeStatus.GetHeaders().substr(0,5) + NodeStatus.GetMNsHash().substr(0,5) + NodeStatus.GetLastBlockHash().substr(0,5) + NodeStatus.GetSummary().substr(0,5) + NodeStatus.GetGVTHash().substr(0,5) + NodeStatus.GetNosoCFG().substr(0,5);
-        std::cout << "String to Hash : " << Consensus << std::endl;
+       // std::cout << "String to Hash : " << Consensus << std::endl;
         std::string MerkleTree = calculateMD5(Consensus);
         this->MerkleTree = MerkleTree;
         //std:: cout << "String to Hash : " << Consensus << std::endl;    
-        std::cout << "MerkleTree: " << MerkleTree << std::endl;
+       // std::cout << "MerkleTree: " << MerkleTree << std::endl;
 		}
         
         
@@ -145,11 +172,12 @@ public:
         std::string receivedStatus = SendStringToNode(NodeIP, NodePort, NODESTATUS_COMMAND);
         //std::cout << "Worked after SendString ToNode: ";
         if (receivedStatus == "NULL") {
+        std::cout << "Error: Unable to receive NODESTATUS from Node: " << NodeIP << " Port: " << NodePort << std::endl;
             exit(EXIT_FAILURE); // Or handle the error in a different way
         }
         
         //Print receivedStatus string
-        std::cout << "Received Status: " << receivedStatus << std::endl;
+        //std::cout << "Received Status: " << receivedStatus << std::endl;
         
         //NODESTATUS 51 149926 0 0 A6A78 0.4.2Cb1 1708194359 18ECB 259 55D3DC19805FDCE3DC3AE4BEE9040DA7 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF1 1708194000 NpryectdevepmentfundsGE 0 54 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF1 D4F62 9A623 0A373 27CBD
         std::istringstream NodeStatusIss(receivedStatus);
@@ -194,6 +222,35 @@ public:
         std::cout << std::left << std::setw(15) << NodeIP << std::setw(10) << NodePort << std::setw(15) << MerkleTree << std::setw(20) << NodeStatus.GetNodeStatus() << std::endl;
         
     }
+    void MyNodePresentation()
+    {
+        std::string presentation = "PSK " + GetNodePublicIP()+ " " + ProgramVersion + Subversion + " " + GetUTCTimeFromNTPServer();
+        std::cout << presentation << std::endl;
+        
+        //std::string result = SendStringToNode(NodeIP, NodePort, "NOSOCFG\n");
+        /*// 'PSK '+Address+' '+ProgramVersion+subversion+' '+UTCTimeStr);
 
+-PSK             :Speecific String related to Pascal Source of Kreditz , this is a Legacy string
+-Address         :Your públic Ip Address
+-ProgramVersion  :Node Version
+-UTCTimeStr      :Your UTC time in String Format.  */
+    }
+    
 
+    std::string GetNodePublicIP() {
+        CURL* curl;
+        CURLcode res;
+        std::string readBuffer;
+
+        curl = curl_easy_init();
+        if (curl) {
+            curl_easy_setopt(curl, CURLOPT_URL, "https://api.ipify.org");
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+            res = curl_easy_perform(curl);
+            curl_easy_cleanup(curl);
+        }
+
+        return readBuffer;
+    }
 };
