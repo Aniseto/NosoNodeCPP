@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="Communications.h" />
     <ClInclude Include="DataStructures.h" />
+    <ClInclude Include="Noso.h" />
     <ClInclude Include="SeedFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -62,7 +62,7 @@ void SaveToTextFile(const std::vector<std::string>& ipAddresses, const std::stri
 }
 
 std::vector<std::string> GetSeedIPAddresses() {
-    std::string domain = "seed.nosocoin.com";
+    std::string domain = "testnet.nosocoin.com";
     std::vector<std::string> ipAddresses;
 
     struct addrinfo hints, * res, * p;
@@ -126,4 +126,5 @@ std::string calculateMD5(const std::string& input) {
     return hashHex;
     
 }
+
 

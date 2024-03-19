@@ -11,13 +11,23 @@
 using namespace boost::asio;
 using ip::tcp;
 
+std::string ProgramVersion = "0.4.2";
+std::string Subversion = "Cb1";
 
+
+std::string GetNodePresentation()
+{
+    std::string presentation = "PSK " + GetNodePublicIP() + " " + ProgramVersion + Subversion + " " + GetUTCTimeFromNTPServer() +"\n";
+    std::cout << "\nNode Presentation: " << presentation << std::endl;
+    return presentation;
+}
 
 int main() {
     
 
-    int DefaultSeedPort = 8080;
-    int DefaultNodePort = 8080;
+    int DefaultSeedPort = 4040;
+    int DefaultNodePort = 4040;
+    int TestnetPort = 4040;
     //std::string ProgramVersion="0.4.2";
     //std::string Subversion="Cb1";
 
@@ -66,6 +76,10 @@ int main() {
     std::string NodePublicIP = GetNodePublicIP();
     std::cout << "Public IP: " << NodePublicIP << std::endl;
 
+     std::string MyNodePresentation=GetNodePresentation();
+     std::string presentationResponse= SendStringToNode("38.242.252.234", DefaultSeedPort, MyNodePresentation);
+     std::cout << "Presentation Response: " << presentationResponse << std::endl;
+
 
 
 
@@ -77,7 +91,7 @@ int main() {
     
     
     
-    std::string NOSOCFG_COMMAND = "NOSOCFG\n";
+    std::string NOSOCFG_COMMAND = "NSLCFG\n";
     std::string NodeList = SendStringToNode(SeedIpAddresses[0], DefaultSeedPort, NOSOCFG_COMMAND);
     std::cout << "Node List: " << NodeList << std::endl;
 
