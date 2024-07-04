@@ -17,7 +17,9 @@ std::string Subversion = "Cb1";
 
 std::string GetNodePresentation()
 {
-    std::string presentation = "PSK " + GetNodePublicIP() + " " + ProgramVersion + Subversion + " " + GetUTCTimeFromNTPServer() +"\n";
+    std::string UTCTime = GetUTCTimeString();
+    std::cout << "\nUTC Time: " << UTCTime << std::endl;
+    std::string presentation = "PSK " + GetNodePublicIP() + " " + ProgramVersion + Subversion + " " + UTCTime + "\n";
     std::cout << "\nNode Presentation: " << presentation << std::endl;
     return presentation;
 }
@@ -28,11 +30,16 @@ int main() {
     int DefaultSeedPort = 4040;
     int DefaultNodePort = 4040;
     int TestnetPort = 4040;
+    bool UseTestnet = "True";
     //std::string ProgramVersion="0.4.2";
     //std::string Subversion="Cb1";
 
     // STEP 1: Get Seed IP Addresses, and save them to a SeedIPAddress Vector and a local file SeedIPAddresses.txt
+    if (UseTestnet)
+    {
+		DefaultSeedPort = TestnetPort;
 
+	}
     std::vector<std::string> SeedIpAddresses = GetSeedIPAddresses();
     SaveToTextFile(SeedIpAddresses, "SeedIPAddresses.txt");
     std::cout << "Total Seed Nodes : " << SeedIpAddresses.size() << std::endl;
@@ -70,7 +77,7 @@ int main() {
         
     }
 
-    std::string UTCTime = GetUTCTimeFromNTPServer();
+    std::string UTCTime = GetUTCTimeString();
     std::cout << "\nUTC Time: " << UTCTime << std::endl;
     
     std::string NodePublicIP = GetNodePublicIP();
@@ -88,7 +95,10 @@ int main() {
 
  //STEP3 Get all Nodes running NOSOCFG command
     //std::string NOSOCFG_COMMAND = "NSLMNS\n";
-    
+    std::string ping="$PING";
+    std::string pong = SendStringToNode(SeedIpAddresses[0], DefaultSeedPort, ping);
+    std::cout << "Pong: " << pong << std::endl;
+
     
     
     std::string NOSOCFG_COMMAND = "NSLCFG\n";

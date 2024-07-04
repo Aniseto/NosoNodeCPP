@@ -125,3 +125,45 @@ std::string GetUTCTimeFromNTPServer(const std::string& ntpServer = "pool.ntp.org
     // Convertir la hora UTC en una cadena usando std::to_string
     return std::to_string(current_time);
 }
+
+std::string GetUTCTimeString(const std::string& ntpServer = "pool.ntp.org")
+{
+    try
+    {
+        boost::asio::io_context io_context;
+        boost::asio::ip::udp::resolver resolver(io_context);
+        boost::asio::ip::udp::endpoint receiver_endpoint = *resolver.resolve(boost::asio::ip::udp::v4(), ntpServer, "ntp").begin();
+        boost::asio::ip::udp::socket socket(io_context);
+        socket.open(boost::asio::ip::udp::v4());
+
+        // Formar la solicitud NTP
+        std::array<uint8_t, 48> send_buf{ 0 };
+        send_buf[0] = 0x1B;
+
+        // Enviar la solicitud NTP
+        socket.send_to(boost::asio::buffer(send_buf), receiver_endpoint);
+
+        // Recibir la respuesta NTP
+        std::array<uint8_t, 48> recv_buf;
+        boost::asio::ip::udp::endpoint sender_endpoint;
+        size_t len = socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint);
+
+        if (len < 48)
+        {
+            throw std::runtime_error("Respuesta NTP incompleta");
+        }
+
+        // Analizar la respuesta NTP
+        uint32_t seconds = (recv_buf[40] << 24) | (recv_buf[41] << 16) | (recv_buf[42] << 8) | recv_buf[43];
+        uint64_t epoch = static_cast<uint64_t>(seconds) - 2208988800U; // Diferencia entre 1900-1970
+
+        socket.close();
+
+        return std::to_string(epoch);
+    }
+    catch (const std::exception& ex)
+    {
+        // Manejo básico de errores
+        throw std::runtime_error(std::string("Error: ") + ex.what());
+    }
+}
